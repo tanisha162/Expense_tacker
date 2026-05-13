@@ -1,5 +1,5 @@
 from pathlib import Path
-from django.contrib.auth.models import User
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
