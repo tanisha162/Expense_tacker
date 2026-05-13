@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Expense Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #3C3489, #534AB7);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .logo { font-size: 2.5rem; text-align: center; margin-bottom: 0.5rem; }
+        .app-name { text-align: center; font-size: 1.5rem; font-weight: 700; color: #3C3489; margin-bottom: 0.3rem; }
+        .app-sub { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 2rem; }
+        .btn-login { background: #534AB7; border: none; width: 100%; padding: 0.75rem; border-radius: 8px; color: white; font-weight: 600; font-size: 1rem; }
+        .btn-login:hover { background: #3C3489; color: white; }
+        .form-control:focus { border-color: #534AB7; box-shadow: 0 0 0 0.2rem rgba(83,74,183,0.2); }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">💰</div>
+        <div class="app-name">Expense Tracker</div>
+        <div class="app-sub">Login to manage your expenses</div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger py-2 text-center">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Enter username" required autofocus>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn-login">Login →</button>
+        </form>
+    </div>
+</body>
+</html>
