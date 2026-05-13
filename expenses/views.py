@@ -17,10 +17,8 @@ def login_view(request):
 def index(request):
     return render(request, 'expenses/index.html')
 
-
 def add_expense(request):
-    return redirect('/')
-
+    return render(request, 'expenses/add.html')
 
 def delete_expense(request, pk):
     return redirect('/')
