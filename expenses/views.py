@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from .models import Expense
 
 
 def login_view(request):
@@ -15,18 +16,45 @@ def login_view(request):
 
 
 def index(request):
-    return render(request, 'expenses/index.html')
+    expenses = Expense.objects.all()
+
+    total = sum(exp.amount for exp in expenses)
+
+    context = {
+        'expenses': expenses,
+        'total': total,
+    }
+
+    return render(request, 'expenses/index.html', context)
 
 
 def add_expense(request):
 
     if request.method == 'POST':
+
+        title = request.POST.get('title')
+        amount = request.POST.get('amount')
+        category = request.POST.get('category')
+        date = request.POST.get('date')
+        note = request.POST.get('note')
+
+        Expense.objects.create(
+            title=title,
+            amount=amount,
+            category=category,
+            date=date,
+            note=note
+        )
+
         return redirect('/')
 
     return render(request, 'expenses/add.html')
 
 
 def delete_expense(request, pk):
+    expense = Expense.objects.get(id=pk)
+    expense.delete()
+
     return redirect('/')
 
 
