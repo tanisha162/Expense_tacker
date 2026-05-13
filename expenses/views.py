@@ -6,9 +6,8 @@ def login_view(request):
         password = request.POST.get('password')
 
         if username == 'admin' and password == 'admin123':
-            return redirect('dashboard')
+            return redirect('/')
 
-        else:
-            return render(request, 'login.html', {'error': 'Invalid credentials'})
+        return render(request, 'login.html', {'error': 'Invalid credentials'})
 
     return render(request, 'login.html')
