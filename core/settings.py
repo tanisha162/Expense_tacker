@@ -4,11 +4,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-a-2j$ndtu*#(=%m@pglad6c+f%7y-g)+_&f+bx31&(s%qcyo=^'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
+
 CSRF_TRUSTED_ORIGINS = [
-    'https://web-production-72b1b.up.railway.app',
+    'https://*.up.railway.app',
 ]
 INSTALLED_APPS = [
     'django.contrib.admin',
