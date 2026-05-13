@@ -7,7 +7,9 @@ SECRET_KEY = 'django-insecure-a-2j$ndtu*#(=%m@pglad6c+f%7y-g)+_&f+bx31&(s%qcyo=^
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-72b1b.up.railway.app',
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
