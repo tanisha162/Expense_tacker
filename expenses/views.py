@@ -11,3 +11,5 @@ def login_view(request):
         return render(request, 'login.html', {'error': 'Invalid credentials'})
 
     return render(request, 'login.html')
+def index(request):
+    return redirect('/login/')
