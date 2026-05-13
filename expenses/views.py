@@ -19,6 +19,10 @@ def index(request):
 
 
 def add_expense(request):
+
+    if request.method == 'POST':
+        return redirect('/')
+
     return render(request, 'expenses/add.html')
 
 
