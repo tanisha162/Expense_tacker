@@ -22,5 +22,9 @@ def add_expense(request):
     return redirect('/')
 
 
+def delete_expense(request, pk):
+    return redirect('/')
+
+
 def logout_view(request):
     return redirect('/login/')
