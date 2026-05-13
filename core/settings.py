@@ -7,7 +7,15 @@ SECRET_KEY = 'django-insecure-a-2j$ndtu*#(=%m@pglad6c+f%7y-g)+_&f+bx31&(s%qcyo=^
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'expense-tacker-cum5.onrender.com',
+    '127.0.0.1',
+    'localhost',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://expense-tacker-cum5.onrender.com',
+]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
