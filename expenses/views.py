@@ -9,13 +9,13 @@ def login_view(request):
         if username == 'admin' and password == 'admin123':
             return redirect('/')
 
-        return render(request, 'login.html', {'error': 'Invalid credentials'})
+        return render(request, 'expenses/login.html', {'error': 'Invalid credentials'})
 
-    return render(request, 'login.html')
+    return render(request, 'expenses/login.html')
 
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'expenses/index.html')
 
 
 def add_expense(request):
