@@ -111,11 +111,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+{{ labels|json_script:"expense-labels" }}
+{{ values|json_script:"expense-values" }}
+
 <script>
 
 window.onload = function () {
 
     const ctx = document.getElementById('expenseChart');
+    const labels = JSON.parse(document.getElementById('expense-labels').textContent);
+    const values = JSON.parse(document.getElementById('expense-values').textContent);
 
     new Chart(ctx, {
 
@@ -123,11 +128,11 @@ window.onload = function () {
 
         data: {
 
-            labels: {{ labels|safe }},
+            labels: labels,
 
             datasets: [{
 
-                data: {{ values|safe }},
+                data: values,
 
                 backgroundColor: [
                     'red',

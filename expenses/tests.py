@@ -70,3 +70,27 @@ class DeleteExpenseTests(TestCase):
         response = self.client.post(f'/delete/{expense.id}/')
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Expense.objects.filter(id=expense.id).exists())
+
+
+class DashboardChartEscapingTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('tester', password='pw123456')
+        self.client.login(username='tester', password='pw123456')
+
+    def test_malicious_category_cannot_break_out_of_chart_script(self):
+        # Regression test: category labels were rendered into the
+        # dashboard's <script> block with |safe, so a category like
+        # "</script><script>alert(1)</script>" closed the script tag
+        # and ran as stored XSS for every viewer of the dashboard.
+        Expense.objects.create(
+            title='Evil', amount=10,
+            category='</script><script>alert("xss")</script>',
+            date='2026-11-16',
+        )
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response, '</script><script>alert', status_code=200
+        )
+        # The chart data must still reach the page, safely encoded.
+        self.assertContains(response, 'expense-labels')
