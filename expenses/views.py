@@ -1,8 +1,9 @@
 from collections import defaultdict
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
+from .forms import ExpenseForm
 from .models import Expense
 
 
@@ -67,23 +68,19 @@ def add_expense(request):
 
     if request.method == 'POST':
 
-        title = request.POST.get('title')
-        amount = request.POST.get('amount')
-        category = request.POST.get('category')
-        date = request.POST.get('date')
-        note = request.POST.get('note')
+        form = ExpenseForm(request.POST)
 
-        if title and amount and category and date:
+        if form.is_valid():
 
-            Expense.objects.create(
-                title=title,
-                amount=float(amount),
-                category=category,
-                date=date,
-                note=note
-            )
+            form.save()
 
             return redirect('/')
+
+        return render(
+            request,
+            'expenses/add.html',
+            {'error': 'Please check the highlighted fields and try again.'}
+        )
 
     return render(request, 'expenses/add.html')
 
@@ -91,7 +88,7 @@ def add_expense(request):
 @login_required(login_url='/login/')
 def delete_expense(request, pk):
 
-    expense = Expense.objects.get(id=pk)
+    expense = get_object_or_404(Expense, id=pk)
 
     expense.delete()
 
