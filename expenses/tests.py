@@ -48,5 +48,25 @@ class DeleteExpenseTests(TestCase):
     def test_delete_missing_expense_returns_404(self):
         # Regression test: Expense.objects.get() used to raise
         # DoesNotExist -> 500 for an unknown id.
-        response = self.client.get('/delete/9999/')
+        response = self.client.post('/delete/9999/')
         self.assertEqual(response.status_code, 404)
+
+    def test_get_does_not_delete_expense(self):
+        # Regression test: delete used to run on a plain GET, so any
+        # link click, prefetch or crawler could wipe an expense.
+        expense = Expense.objects.create(
+            title='Lunch', amount=200, category='Food',
+            date='2026-11-15',
+        )
+        response = self.client.get(f'/delete/{expense.id}/')
+        self.assertEqual(response.status_code, 405)
+        self.assertTrue(Expense.objects.filter(id=expense.id).exists())
+
+    def test_post_deletes_expense(self):
+        expense = Expense.objects.create(
+            title='Lunch', amount=200, category='Food',
+            date='2026-11-15',
+        )
+        response = self.client.post(f'/delete/{expense.id}/')
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Expense.objects.filter(id=expense.id).exists())

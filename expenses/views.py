@@ -2,6 +2,7 @@ from collections import defaultdict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 from .forms import ExpenseForm
 from .models import Expense
@@ -86,6 +87,7 @@ def add_expense(request):
 
 
 @login_required(login_url='/login/')
+@require_POST
 def delete_expense(request, pk):
 
     expense = get_object_or_404(Expense, id=pk)

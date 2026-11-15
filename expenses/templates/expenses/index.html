@@ -80,10 +80,12 @@
                                 <td>{{ expense.category }}</td>
 
                                 <td>
-                                    <a href="{% url 'delete_expense' expense.id %}"
-                                       class="btn btn-danger btn-sm">
-                                        Delete
-                                    </a>
+                                    <form method="post" action="{% url 'delete_expense' expense.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
 
