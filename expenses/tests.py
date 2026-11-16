@@ -56,7 +56,7 @@ class DeleteExpenseTests(TestCase):
         # link click, prefetch or crawler could wipe an expense.
         expense = Expense.objects.create(
             title='Lunch', amount=200, category='Food',
-            date='2026-11-15',
+            date='2026-11-15', user=self.user,
         )
         response = self.client.get(f'/delete/{expense.id}/')
         self.assertEqual(response.status_code, 405)
@@ -65,11 +65,51 @@ class DeleteExpenseTests(TestCase):
     def test_post_deletes_expense(self):
         expense = Expense.objects.create(
             title='Lunch', amount=200, category='Food',
-            date='2026-11-15',
+            date='2026-11-15', user=self.user,
         )
         response = self.client.post(f'/delete/{expense.id}/')
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Expense.objects.filter(id=expense.id).exists())
+
+
+class ExpenseOwnershipTests(TestCase):
+    def setUp(self):
+        self.alice = User.objects.create_user('alice', password='pw123456')
+        self.bob = User.objects.create_user('bob', password='pw123456')
+        self.client.login(username='alice', password='pw123456')
+        self.valid_data = {
+            'title': 'Groceries',
+            'amount': '450',
+            'category': 'Food',
+            'date': '2026-11-15',
+            'note': '',
+        }
+
+    def test_added_expense_belongs_to_creator(self):
+        # Regression test: expenses used to be ownerless, so every
+        # logged-in user saw (and could delete) everyone else's data.
+        response = self.client.post('/add/', self.valid_data)
+        self.assertEqual(response.status_code, 302)
+        expense = Expense.objects.first()
+        self.assertEqual(expense.user, self.alice)
+
+    def test_user_cannot_see_other_users_expenses(self):
+        self.client.post('/add/', self.valid_data)
+        self.client.logout()
+        self.client.login(username='bob', password='pw123456')
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Groceries')
+        self.assertNotContains(response, '450')
+
+    def test_user_cannot_delete_other_users_expense(self):
+        self.client.post('/add/', self.valid_data)
+        expense = Expense.objects.first()
+        self.client.logout()
+        self.client.login(username='bob', password='pw123456')
+        response = self.client.post(f'/delete/{expense.id}/')
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Expense.objects.filter(id=expense.id).exists())
 
 
 class DashboardChartEscapingTests(TestCase):

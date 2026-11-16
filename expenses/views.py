@@ -42,7 +42,7 @@ def login_view(request):
 @login_required(login_url='/login/')
 def index(request):
 
-    expenses = Expense.objects.all()
+    expenses = Expense.objects.filter(user=request.user)
 
     total = sum(exp.amount for exp in expenses)
 
@@ -73,7 +73,9 @@ def add_expense(request):
 
         if form.is_valid():
 
-            form.save()
+            expense = form.save(commit=False)
+            expense.user = request.user
+            expense.save()
 
             return redirect('/')
 
@@ -90,7 +92,7 @@ def add_expense(request):
 @require_POST
 def delete_expense(request, pk):
 
-    expense = get_object_or_404(Expense, id=pk)
+    expense = get_object_or_404(Expense, id=pk, user=request.user)
 
     expense.delete()
 
