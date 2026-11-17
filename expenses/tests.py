@@ -39,6 +39,25 @@ class AddExpenseValidationTests(TestCase):
         self.assertEqual(Expense.objects.count(), 1)
         self.assertEqual(Expense.objects.first().amount, 450.0)
 
+    def test_negative_amount_is_rejected(self):
+        # Regression test: a negative amount used to be accepted, so a
+        # -450 "expense" was saved and subtracted from the dashboard
+        # total and the category pie chart.
+        data = {**self.valid_data, 'amount': '-450'}
+        response = self.client.post('/add/', data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Expense.objects.count(), 0)
+        self.assertContains(response, 'Please check')
+
+    def test_zero_amount_is_rejected(self):
+        # Regression test: a zero-amount expense used to be accepted
+        # and saved as a meaningless ledger row.
+        data = {**self.valid_data, 'amount': '0'}
+        response = self.client.post('/add/', data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Expense.objects.count(), 0)
+        self.assertContains(response, 'Please check')
+
 
 class DeleteExpenseTests(TestCase):
     def setUp(self):

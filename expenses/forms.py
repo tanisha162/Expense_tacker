@@ -2,6 +2,14 @@ from django import forms
 from .models import Expense
 
 class ExpenseForm(forms.ModelForm):
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+        if amount is not None and amount <= 0:
+            raise forms.ValidationError(
+                'Amount must be greater than zero.'
+            )
+        return amount
+
     class Meta:
         model = Expense
         fields = ['title', 'amount', 'category', 'date', 'note']
