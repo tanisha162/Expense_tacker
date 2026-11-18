@@ -131,6 +131,25 @@ class ExpenseOwnershipTests(TestCase):
         self.assertTrue(Expense.objects.filter(id=expense.id).exists())
 
 
+class LogoutTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('tester', password='pw123456')
+        self.client.login(username='tester', password='pw123456')
+
+    def test_get_does_not_log_out(self):
+        # Regression test: logout used to run on a plain GET, so any
+        # third-party page, link prefetcher or crawler could log the
+        # user out with a bare <img> tag.
+        response = self.client.get('/logout/')
+        self.assertEqual(response.status_code, 405)
+        self.assertIn('_auth_user_id', self.client.session)
+
+    def test_post_logs_out(self):
+        response = self.client.post('/logout/')
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+
 class DashboardChartEscapingTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('tester', password='pw123456')

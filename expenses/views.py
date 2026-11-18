@@ -99,8 +99,11 @@ def delete_expense(request, pk):
     return redirect('/')
 
 
+@require_POST
 def logout_view(request):
-
+    # POST-only: a GET logout lets any third-party page (or a link
+    # prefetcher/crawler) log the user out with a bare <img> tag.
+    # Django's own logout view requires POST for the same reason.
     logout(request)
 
     return redirect('/login/')
