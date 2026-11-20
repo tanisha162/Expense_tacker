@@ -61,6 +61,22 @@ class AddExpenseValidationTests(TestCase):
         self.assertContains(response, 'Please check')
 
 
+class AddExpenseFormTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('tester', password='pw123456')
+        self.client.login(username='tester', password='pw123456')
+
+    def test_amount_input_accepts_decimal_amounts(self):
+        # Regression test: the amount input was <input type="number">
+        # with no step attribute, so browsers defaulted step to 1 and
+        # rejected decimal amounts like 19.99 with a step-mismatch
+        # error — the form could never be submitted for a paise-level
+        # amount, even though the backend stores Decimal amounts.
+        response = self.client.get('/add/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'step="0.01"')
+
+
 class DeleteExpenseTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('tester', password='pw123456')
