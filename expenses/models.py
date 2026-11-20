@@ -11,7 +11,7 @@ class Expense(models.Model):
         related_name='expenses',
     )
     title = models.CharField(max_length=100)
-    amount = models.FloatField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.CharField(max_length=100)
     date = models.DateField()
     note = models.TextField(blank=True)

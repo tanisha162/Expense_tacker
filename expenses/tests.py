@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -148,6 +150,54 @@ class LogoutTests(TestCase):
         response = self.client.post('/logout/')
         self.assertEqual(response.status_code, 302)
         self.assertNotIn('_auth_user_id', self.client.session)
+
+
+class DashboardMoneyTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('tester', password='pw123456')
+        self.client.login(username='tester', password='pw123456')
+
+    def test_dashboard_total_is_exact_not_float_artefact(self):
+        # Regression test: amount was a FloatField, so the dashboard
+        # total summed binary floats and 0.1 + 0.2 rendered as
+        # "₹ 0.30000000000000004" instead of "₹ 0.30".
+        Expense.objects.create(
+            title='Tea', amount='0.1', category='Food',
+            date='2026-11-15', user=self.user,
+        )
+        Expense.objects.create(
+            title='Snack', amount='0.2', category='Food',
+            date='2026-11-15', user=self.user,
+        )
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '₹ 0.30')
+        self.assertNotContains(response, '0.30000000000000004')
+
+    def test_amount_is_stored_as_decimal(self):
+        # Regression test: amounts were stored as binary floats.
+        Expense.objects.create(
+            title='Tea', amount='19.99', category='Food',
+            date='2026-11-15', user=self.user,
+        )
+        self.assertEqual(
+            Expense.objects.first().amount, Decimal('19.99')
+        )
+
+    def test_category_chart_values_are_exact(self):
+        # Regression test: per-category totals were also summed as
+        # floats, so the pie-chart data carried the same artefact.
+        Expense.objects.create(
+            title='Tea', amount='0.1', category='Food',
+            date='2026-11-15', user=self.user,
+        )
+        Expense.objects.create(
+            title='Snack', amount='0.2', category='Food',
+            date='2026-11-15', user=self.user,
+        )
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '0.30000000000000004')
 
 
 class DashboardChartEscapingTests(TestCase):
