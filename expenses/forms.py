@@ -1,4 +1,6 @@
 from django import forms
+from django.utils import timezone
+
 from .models import Expense
 
 class ExpenseForm(forms.ModelForm):
@@ -9,6 +11,14 @@ class ExpenseForm(forms.ModelForm):
                 'Amount must be greater than zero.'
             )
         return amount
+
+    def clean_date(self):
+        date = self.cleaned_data.get('date')
+        if date is not None and date > timezone.localdate():
+            raise forms.ValidationError(
+                'Date cannot be in the future.'
+            )
+        return date
 
     class Meta:
         model = Expense

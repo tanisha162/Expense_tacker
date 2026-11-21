@@ -60,6 +60,24 @@ class AddExpenseValidationTests(TestCase):
         self.assertEqual(Expense.objects.count(), 0)
         self.assertContains(response, 'Please check')
 
+    def test_future_date_is_rejected(self):
+        # Regression test: an expense dated in the future used to be
+        # accepted and saved, so a not-yet-incurred "expense" showed
+        # up in the dashboard total and the category pie chart.
+        data = {**self.valid_data, 'date': '2999-01-01'}
+        response = self.client.post('/add/', data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Expense.objects.count(), 0)
+        self.assertContains(response, 'Please check')
+
+    def test_today_date_is_accepted(self):
+        from django.utils import timezone
+        data = {**self.valid_data,
+                'date': timezone.localdate().isoformat()}
+        response = self.client.post('/add/', data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Expense.objects.count(), 1)
+
 
 class AddExpenseFormTests(TestCase):
     def setUp(self):
